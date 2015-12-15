@@ -45,8 +45,8 @@ func TestGitBasicPktLines(t *testing.T) {
 	}
 }
 
-func TestGitPktLineBreak(t *testing.T) {
-	// Special case: "0000" should return err=gitPktLineBreak
+func TestPktLineBreak(t *testing.T) {
+	// Special case: "0000" should return err=PktLineBreak
 	_, lineBreak, _, err := gitNextPktLine([]byte("0000"))
 	if err != nil {
 		t.Fatal(err)
@@ -59,7 +59,7 @@ func TestGitPktLineBreak(t *testing.T) {
 	}
 }
 
-func TestGitPktLineStream(t *testing.T) {
+func TestPktLineStream(t *testing.T) {
 	// Test a pkt-line data stream with mixed newlines in it.
 	stream := []byte("0006a\n0005a0004000bfoobar\n0000")
 	results := []string{
@@ -73,7 +73,7 @@ func TestGitPktLineStream(t *testing.T) {
 
 		// Decode the next pkt-line from the stream.
 		pl, lineBreak, n, err := gitNextPktLine(stream)
-		if err == errGitPktLineNeedMore {
+		if err == errPktLineNeedMore {
 			// End of stream. Validate that we got the correct number of
 			// results.
 			if i != len(results) {
