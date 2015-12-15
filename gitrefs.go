@@ -16,7 +16,7 @@ import (
 //  https://gist.github.com/schacon/6092633
 //
 
-type gitRef struct {
+type Ref struct {
 	Name, Hash string
 
 	// Only present if this is a peeled ref ("^{}").
@@ -24,22 +24,22 @@ type gitRef struct {
 }
 
 // BestHash returns the PeeledHash, if present, otherwise the Hash.
-func (r *gitRef) BestHash() string {
+func (r *Ref) BestHash() string {
 	if len(r.PeeledHash) > 0 {
 		return r.PeeledHash
 	}
 	return r.Hash
 }
 
-type gitRefs struct {
+type Refs struct {
 	service  string
 	mainID   string // e.g. SHA1 of HEAD
 	mainName string // e.g. "HEAD"
 	capList  []string
-	records  []*gitRef
+	records  []*Ref
 }
 
-func (r *gitRefs) Bytes() []byte {
+func (r *Refs) Bytes() []byte {
 	var b []byte
 
 	// The service line and it's line-break (0000).
@@ -81,9 +81,9 @@ func (r *gitRefs) Bytes() []byte {
 	return b
 }
 
-func gitParseRefs(infoRefs []byte) (*gitRefs, error) {
-	parser := new(gitRefParser)
-	parser.refs = new(gitRefs)
+func ParseRefs(infoRefs []byte) (*Refs, error) {
+	parser := new(refParser)
+	parser.refs = new(Refs)
 	parser.next = parser.parseServiceSection
 
 	for {
@@ -106,8 +106,8 @@ func gitParseRefs(infoRefs []byte) (*gitRefs, error) {
 	return parser.refs, nil
 }
 
-type gitRefParser struct {
-	refs                 *gitRefs
+type refParser struct {
+	refs                 *Refs
 	done                 bool
 	next, afterLineBreak func(pl PktLine, lineBreak bool) error
 	lastRefRecord        *[2]string
@@ -115,7 +115,7 @@ type gitRefParser struct {
 
 // expectLineBreak expects a single line break ("0000") pkt-line and then
 // proceeds to p.afterLineBreak upon success.
-func (p *gitRefParser) expectLineBreak(pl PktLine, lineBreak bool) error {
+func (p *refParser) expectLineBreak(pl PktLine, lineBreak bool) error {
 	if !lineBreak {
 		return fmt.Errorf("expected line break")
 	}
@@ -125,7 +125,7 @@ func (p *gitRefParser) expectLineBreak(pl PktLine, lineBreak bool) error {
 }
 
 // parseServiceSection parses the initial service pkt-line of the smart_reply.
-func (p *gitRefParser) parseServiceSection(pl PktLine, lineBreak bool) error {
+func (p *refParser) parseServiceSection(pl PktLine, lineBreak bool) error {
 	// Trim space of the line.
 	pl = bytes.TrimSpace(pl)
 
@@ -143,7 +143,7 @@ func (p *gitRefParser) parseServiceSection(pl PktLine, lineBreak bool) error {
 }
 
 // parseRefList parses the ref_list portion of the smart_reply.
-func (p *gitRefParser) parseRefList(pl PktLine, lineBreak bool) error {
+func (p *refParser) parseRefList(pl PktLine, lineBreak bool) error {
 	// Trim space of the line.
 	pl = bytes.TrimSpace(pl)
 
@@ -192,12 +192,12 @@ func (p *gitRefParser) parseRefList(pl PktLine, lineBreak bool) error {
 }
 
 // parseRefRecords parses the ref_records portion of the smart_reply.
-func (p *gitRefParser) parseRefRecords(pl PktLine, lineBreak bool) error {
+func (p *refParser) parseRefRecords(pl PktLine, lineBreak bool) error {
 	if lineBreak {
 		// If there is a last record, we can insert it into the records slice
 		// now as an unpeeled ref.
 		if p.lastRefRecord != nil {
-			p.refs.records = append(p.refs.records, &gitRef{
+			p.refs.records = append(p.refs.records, &Ref{
 				Hash: p.lastRefRecord[0],
 				Name: p.lastRefRecord[1],
 			})
@@ -233,7 +233,7 @@ func (p *gitRefParser) parseRefRecords(pl PktLine, lineBreak bool) error {
 	name := s[1]
 	if strings.HasSuffix(name, "^{}") {
 		// We have a peeled reference.
-		p.refs.records = append(p.refs.records, &gitRef{
+		p.refs.records = append(p.refs.records, &Ref{
 			Hash:       p.lastRefRecord[0],
 			Name:       p.lastRefRecord[1],
 			PeeledHash: s[0],
@@ -243,7 +243,7 @@ func (p *gitRefParser) parseRefRecords(pl PktLine, lineBreak bool) error {
 	}
 
 	// We have a unpeeled reference.
-	p.refs.records = append(p.refs.records, &gitRef{
+	p.refs.records = append(p.refs.records, &Ref{
 		Hash: p.lastRefRecord[0],
 		Name: p.lastRefRecord[1],
 	})

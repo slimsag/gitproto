@@ -13,14 +13,14 @@ import (
 var gitRefsTests = []struct {
 	file, mainID, mainName string
 	capList                []string
-	records                []gitRef
+	records                []Ref
 }{
 	{
 		file:     "testdata/github-azul3d-audio",
 		mainID:   "cd95fa968a0fa851547bd65e73e1b385a2dca005",
 		mainName: "HEAD",
 		capList:  []string{"multi_ack", "thin-pack", "side-band", "side-band-64k", "ofs-delta", "shallow", "no-progress", "include-tag", "multi_ack_detailed", "no-done", "symref=HEAD:refs/heads/master", "agent=git/2:2.1.1+github-607-gfba4028"},
-		records: []gitRef{
+		records: []Ref{
 			{Name: "refs/heads/master", Hash: "cd95fa968a0fa851547bd65e73e1b385a2dca005"},
 			{Name: "refs/pull/2/head", Hash: "412511b0e46b31cb4eae7323d3db63acfe60bc08"},
 			{Name: "refs/pull/4/head", Hash: "e963a7b43a4c4880ca40110550fe0b247e9691c3"},
@@ -34,7 +34,7 @@ var gitRefsTests = []struct {
 		mainID:   "214bee1c0789085c0db295e570704122a80067e5",
 		mainName: "HEAD",
 		capList:  []string{"multi_ack", "thin-pack", "side-band", "side-band-64k", "ofs-delta", "shallow", "no-progress", "include-tag", "multi_ack_detailed", "no-done", "symref=HEAD:refs/heads/master", "agent=git/2:2.1.1+github-607-gfba4028"},
-		records: []gitRef{
+		records: []Ref{
 			{Name: "refs/heads/master", Hash: "214bee1c0789085c0db295e570704122a80067e5"},
 			{
 				Name: "refs/tags/v1", Hash: "6c8dbd02cac610727c10d365d842218c1aea315e",
@@ -46,7 +46,7 @@ var gitRefsTests = []struct {
 		mainID:   "3ece9485246bd9c378d408625ec2159d226b8ac8",
 		mainName: "HEAD",
 		capList:  []string{"multi_ack", "thin-pack", "side-band", "side-band-64k", "ofs-delta", "shallow", "no-progress", "include-tag", "multi_ack_detailed", "no-done", "symref=HEAD:refs/heads/master", "agent=git/2:2.1.1+github-607-gfba4028"},
-		records: []gitRef{
+		records: []Ref{
 			{Name: "refs/heads/master", Hash: "3ece9485246bd9c378d408625ec2159d226b8ac8"},
 			{Name: "refs/heads/v3-dev", Hash: "f7808f38206dbb1df3eac8ce38dd5056353b04eb"},
 			{Name: "refs/pull/21/head", Hash: "f7808f38206dbb1df3eac8ce38dd5056353b04eb"},
@@ -65,7 +65,7 @@ var gitRefsTests = []struct {
 		mainID:   "daee506ca1b1c5088b1205813397b0e25e2fa9e1",
 		mainName: "HEAD",
 		capList:  []string{"multi_ack", "thin-pack", "side-band", "side-band-64k", "ofs-delta", "shallow", "no-progress", "include-tag", "multi_ack_detailed", "no-done", "symref=HEAD:refs/heads/master", "agent=git/2:2.1.1+github-607-gfba4028"},
-		records: []gitRef{
+		records: []Ref{
 			{Name: "refs/heads/master", Hash: "daee506ca1b1c5088b1205813397b0e25e2fa9e1"},
 			{
 				Name: "refs/tags/v1", Hash: "bd84527516dec820711a0123b3a67ad5c2005aff",
@@ -81,7 +81,7 @@ var gitRefsTests = []struct {
 		mainID:   "227b26555939499162b40a7ab64265e70cd3a790",
 		mainName: "HEAD",
 		capList:  []string{"multi_ack_detailed", "multi_ack", "side-band-64k", "thin-pack", "ofs-delta", "no-progress", "include-tag", "shallow"},
-		records: []gitRef{
+		records: []Ref{
 			{Name: "refs/heads/master", Hash: "227b26555939499162b40a7ab64265e70cd3a790"},
 			{Name: "refs/heads/v0", Hash: "3fcbb5cadc665d0c151d3d042c66ee6c59879b83"},
 		},
@@ -99,7 +99,7 @@ func TestParseRefs(t *testing.T) {
 		copy(dataCpy, data)
 
 		// Parse the refs.
-		refs, err := gitParseRefs(data)
+		refs, err := ParseRefs(data)
 		if err != nil {
 			t.Log(tst.file)
 			t.Fatal(err)
