@@ -31,7 +31,7 @@ var (
 	errPktLineNeedMore = errors.New("need more data")
 )
 
-// gitNextPktLine parses the next pkt-line from the given binary data.
+// NextPktLine parses the next pkt-line from the given binary data.
 //
 // If the data provided is not enough then err=errPktLineNeedMore is
 // returned.
@@ -39,7 +39,7 @@ var (
 // A special line prefixed with "0000" returns lineBreak=true directly.
 //
 // The returned integer is the number of bytes of consumed data.
-func gitNextPktLine(data []byte) (pl PktLine, lineBreak bool, n int, err error) {
+func NextPktLine(data []byte) (pl PktLine, lineBreak bool, n int, err error) {
 	// Newlines exist in encoded pkt-lines but they do not serve any real-world
 	// purpose (aside from viewing the binary blob using a text editor). The data
 	// in the line itself is binary and may include newlines etc inside of it.

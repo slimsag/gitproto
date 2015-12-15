@@ -20,7 +20,7 @@ var gitBasicPktLinesTests = []struct {
 func TestGitBasicPktLines(t *testing.T) {
 	for _, tst := range gitBasicPktLinesTests {
 		// Parse the pkt-line.
-		pl, _, _, err := gitNextPktLine([]byte(tst.encoded))
+		pl, _, _, err := NextPktLine([]byte(tst.encoded))
 		if err != nil {
 			t.Logf("encoded %q\n", tst.encoded)
 			t.Fatal(err)
@@ -47,7 +47,7 @@ func TestGitBasicPktLines(t *testing.T) {
 
 func TestPktLineBreak(t *testing.T) {
 	// Special case: "0000" should return err=PktLineBreak
-	_, lineBreak, _, err := gitNextPktLine([]byte("0000"))
+	_, lineBreak, _, err := NextPktLine([]byte("0000"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func TestPktLineStream(t *testing.T) {
 		}
 
 		// Decode the next pkt-line from the stream.
-		pl, lineBreak, n, err := gitNextPktLine(stream)
+		pl, lineBreak, n, err := NextPktLine(stream)
 		if err == errPktLineNeedMore {
 			// End of stream. Validate that we got the correct number of
 			// results.

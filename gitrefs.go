@@ -88,7 +88,7 @@ func gitParseRefs(infoRefs []byte) (*gitRefs, error) {
 
 	for {
 		// Decode the next pkt-line.
-		pl, lineBreak, n, err := gitNextPktLine(infoRefs)
+		pl, lineBreak, n, err := NextPktLine(infoRefs)
 		if err != nil {
 			return nil, err
 		}
